@@ -23,10 +23,19 @@ interface User {
     room: string;
 }
 
+interface FileData {
+    name: string;
+    size: number;
+    mimeType: string;
+    dataUrl: string;
+}
+
 interface Message {
     id: string;
     type: 'message' | 'system';
+    msgType?: 'text' | 'image' | 'file';
     content: string;
+    fileData?: FileData;
     sender?: {
         id: string;
         username: string;
@@ -34,6 +43,12 @@ interface Message {
     };
     room: string;
     timestamp: number;
+}
+
+interface SendMessagePayload {
+    content: string;
+    msgType?: 'text' | 'image' | 'file';
+    fileData?: FileData;
 }
 
 // ─── State ───────────────────────────────────────────────────────────────────
@@ -127,15 +142,39 @@ io.on('connection', (socket: Socket) => {
         }
     );
 
-    // User sends a message
-    socket.on('send-message', (content: string) => {
+    // User sends a message (text or file/image)
+    socket.on('send-message', (payload: SendMessagePayload | string) => {
         const user = users.get(socket.id);
-        if (!user || !content.trim()) return;
+        if (!user) return;
+
+        // Support both legacy string payload and new object payload
+        let content: string;
+        let msgType: 'text' | 'image' | 'file' = 'text';
+        let fileData: FileData | undefined;
+
+        if (typeof payload === 'string') {
+            content = payload.trim();
+            if (!content) return;
+        } else {
+            content = payload.content ?? '';
+            msgType = payload.msgType ?? 'text';
+            fileData = payload.fileData;
+            // For file/image, content can be empty
+            if (msgType === 'text' && !content.trim()) return;
+        }
+
+        // Basic size guard: dataUrl max ~6.7MB base64 for 5MB file
+        if (fileData && fileData.dataUrl.length > 7_000_000) {
+            socket.emit('error-message', '文件过大，请上传小于 5MB 的文件');
+            return;
+        }
 
         const msg: Message = {
             id: generateId(),
             type: 'message',
-            content: content.trim(),
+            msgType,
+            content: msgType === 'text' ? content.trim() : content,
+            fileData,
             sender: { id: user.id, username: user.username, avatar: user.avatar },
             room: user.room,
             timestamp: Date.now(),

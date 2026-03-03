@@ -4,10 +4,19 @@ export interface User {
     avatar: string; // CSS color
 }
 
+export interface FileData {
+    name: string;
+    size: number;
+    mimeType: string;
+    dataUrl: string;
+}
+
 export interface Message {
     id: string;
     type: 'message' | 'system';
+    msgType?: 'text' | 'image' | 'file';
     content: string;
+    fileData?: FileData;
     sender?: {
         id: string;
         username: string;

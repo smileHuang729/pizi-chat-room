@@ -1,8 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Message, User } from '../types';
+import { Message, User, FileData } from '../types';
 
 const SERVER_URL = 'http://192.168.1.233:3001';
+
+export interface SendMessagePayload {
+    content: string;
+    msgType?: 'text' | 'image' | 'file';
+    fileData?: FileData;
+}
 
 export function useSocket() {
     const socketRef = useRef<Socket | null>(null);
@@ -47,8 +53,8 @@ export function useSocket() {
         []
     );
 
-    const sendMessage = useCallback((content: string) => {
-        socketRef.current?.emit('send-message', content);
+    const sendMessage = useCallback((payload: SendMessagePayload | string) => {
+        socketRef.current?.emit('send-message', payload);
     }, []);
 
     return { connected, rooms, messages, roomUsers, joinRoom, sendMessage };
