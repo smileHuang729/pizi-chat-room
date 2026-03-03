@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useSocket } from './hooks/useSocket';
+import { Theme, applyTheme, loadSavedTheme } from './themes';
 import LoginPage from './components/LoginPage';
 import Sidebar from './components/Sidebar';
 import MessageList from './components/MessageList';
@@ -13,23 +14,30 @@ export default function App() {
     const [avatar, setAvatar] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [socketId] = useState('');
+    const [currentTheme, setCurrentTheme] = useState<Theme>(() => loadSavedTheme());
 
     const { connected, rooms, messages, roomUsers, joinRoom, sendMessage } =
         useSocket();
 
-    // Track current room locally
     const [currentRoom, setCurrentRoom] = useState(DEFAULT_ROOM);
+
+    // Apply saved theme on mount, and whenever it changes
+    useEffect(() => {
+        applyTheme(currentTheme);
+    }, [currentTheme]);
+
+    const handleChangeTheme = useCallback((theme: Theme) => {
+        setCurrentTheme(theme);
+        applyTheme(theme);
+    }, []);
 
     const handleLogin = useCallback(
         (name: string, color: string) => {
             setUsername(name);
             setAvatar(color);
             setIsLoggedIn(true);
-            // We need the socket id after login; store it from socket
-            // Delay to let socket connect if not yet
             setTimeout(() => {
                 joinRoom(name, DEFAULT_ROOM, color);
-                // Get socket id from global or hook — we'll infer from roomUsers
             }, 0);
         },
         [joinRoom]
@@ -44,12 +52,9 @@ export default function App() {
         [currentRoom, username, avatar, joinRoom]
     );
 
-    // Derive socket ID: the user in roomUsers matching our username (look for our own entry)
-    // We use a simple heuristic: socketId from roomUsers once we find ourselves
     const myUser = roomUsers.find((u) => u.username === username);
     const myId = myUser?.id ?? socketId;
 
-    // Build per-room user counts (sidebar badges) — we only know our current room users
     const roomUserCounts: Record<string, number> = {};
     if (currentRoom) {
         roomUserCounts[currentRoom] = roomUsers.length;
@@ -69,6 +74,8 @@ export default function App() {
                 connected={connected}
                 onSelectRoom={handleSelectRoom}
                 roomUserCounts={roomUserCounts}
+                currentTheme={currentTheme}
+                onChangeTheme={handleChangeTheme}
             />
 
             <div className="chat-area">
