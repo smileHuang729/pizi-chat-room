@@ -4,7 +4,7 @@
     "description": "Chat room client with React + TypeScript",
     "private": true,
     "scripts": {
-        "dev": "vite --host",
+        "dev": "vite",
         "build": "tsc && vite build",
         "preview": "vite preview"
     },

@@ -1191,3 +1191,76 @@ body {
 .lightbox-close:hover {
   background: var(--bg-hover);
 }
+
+/* ─── AI / Gemini Styles ─────────────────────────────────────────────────── */
+
+/* AI Bot row: subtle left border highlight */
+.ai-bot-row {
+  position: relative;
+}
+
+/* AI Bot avatar: glowing Google-blue ring */
+.ai-bot-avatar {
+  box-shadow: 0 0 0 2px #4285f4, 0 0 10px rgba(66, 133, 244, 0.5);
+}
+
+/* AI bubble: distinct blue-tinted background */
+.ai-bubble {
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.18), rgba(66, 133, 244, 0.08)) !important;
+  border: 1px solid rgba(66, 133, 244, 0.35) !important;
+  color: var(--text-primary) !important;
+}
+
+/* AI thinking animation */
+.ai-thinking {
+  opacity: 0.7;
+  animation: ai-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes ai-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+
+/* AI badge next to sender name */
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: linear-gradient(90deg, #4285f4, #34a853);
+  color: #fff;
+  vertical-align: middle;
+}
+
+/* AI shortcut button */
+.ai-btn {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(66, 133, 244, 0.4);
+  background: rgba(66, 133, 244, 0.1);
+  color: var(--text-primary);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.ai-btn:hover:not(:disabled) {
+  background: rgba(66, 133, 244, 0.22);
+  border-color: rgba(66, 133, 244, 0.7);
+  box-shadow: 0 0 8px rgba(66, 133, 244, 0.35);
+}
+
+.ai-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

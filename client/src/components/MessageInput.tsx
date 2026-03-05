@@ -182,6 +182,23 @@ export default function MessageInput({ onSend, disabled, roomName }: MessageInpu
                     </svg>
                 </button>
 
+                {/* AI shortcut button */}
+                <button
+                    className="ai-btn"
+                    onClick={() => {
+                        if (disabled) return;
+                        if (!text.startsWith('@AI ')) {
+                            setText('@AI ' + text);
+                        }
+                        textareaRef.current?.focus();
+                    }}
+                    disabled={disabled}
+                    aria-label="询问 AI"
+                    title="向 Gemini AI 提问 (@AI)"
+                >
+                    ✨
+                </button>
+
                 <textarea
                     id="message-input"
                     ref={textareaRef}
@@ -209,7 +226,7 @@ export default function MessageInput({ onSend, disabled, roomName }: MessageInpu
             </div>
 
             <div className="input-hint">
-                Enter 发送 · Shift+Enter 换行 · 粘贴图片/文件直接上传
+                Enter 发送 · Shift+Enter 换行 · 粘贴图片/文件直接上传 · ✨ 或输入 @AI 向 Gemini 提问
             </div>
         </div>
     );

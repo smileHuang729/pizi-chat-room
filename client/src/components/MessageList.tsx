@@ -76,11 +76,12 @@ export default function MessageList({ messages, currentUserId }: MessageListProp
                 }
 
                 const isOwn = msg.sender?.id === currentUserId;
+                const isAiBot = msg.isAiMessage || msg.isAiThinking;
                 return (
-                    <div key={msg.id} className={`message-group message-row ${isOwn ? 'own' : ''}`}>
+                    <div key={msg.id} className={`message-group message-row ${isOwn ? 'own' : ''} ${isAiBot ? 'ai-bot-row' : ''}`}>
                         {/* Avatar */}
                         <div
-                            className="msg-avatar"
+                            className={`msg-avatar ${isAiBot ? 'ai-bot-avatar' : ''}`}
                             style={{ background: msg.sender?.avatar ?? '#6366f1' }}
                             title={msg.sender?.username}
                         />
@@ -89,6 +90,7 @@ export default function MessageList({ messages, currentUserId }: MessageListProp
                             <div className="message-meta">
                                 <span className="message-sender">
                                     {isOwn ? '我' : msg.sender?.username}
+                                    {isAiBot && <span className="ai-badge">AI</span>}
                                 </span>
                                 <span className="message-time">{formatTime(msg.timestamp)}</span>
                             </div>
@@ -133,7 +135,9 @@ export default function MessageList({ messages, currentUserId }: MessageListProp
                                 </div>
                             ) : (
                                 /* Text message */
-                                <div className="message-bubble">{msg.content}</div>
+                                <div className={`message-bubble ${isAiBot ? 'ai-bubble' : ''} ${msg.isAiThinking ? 'ai-thinking' : ''}`}>
+                                    {msg.content}
+                                </div>
                             )}
                         </div>
                     </div>

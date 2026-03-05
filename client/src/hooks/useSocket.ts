@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Message, User, FileData } from '../types';
 
-const SERVER_URL = 'http://192.168.1.233:3001';
+const SERVER_URL = `http://${window.location.hostname}:3001`;
 
 export interface SendMessagePayload {
     content: string;
@@ -18,7 +18,15 @@ export function useSocket() {
     const [roomUsers, setRoomUsers] = useState<User[]>([]);
 
     useEffect(() => {
-        const socket = io(SERVER_URL, { transports: ['websocket', 'polling'] });
+        const socket = io(SERVER_URL, {
+            transports: ['polling', 'websocket'], // start with polling, upgrade to ws
+            withCredentials: false,
+            reconnection: true,
+            reconnectionAttempts: 10,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000,
+        });
         socketRef.current = socket;
 
         socket.on('connect', () => {
@@ -36,6 +44,12 @@ export function useSocket() {
 
         socket.on('receive-message', (msg: Message) => {
             setMessages((prev) => [...prev, msg]);
+        });
+
+        socket.on('ai-reply-replace', ({ replaceId, msg }: { replaceId: string; msg: Message }) => {
+            setMessages((prev) =>
+                prev.map((m) => (m.id === replaceId ? msg : m))
+            );
         });
 
         socket.on('room-users', (users: User[]) => setRoomUsers(users));

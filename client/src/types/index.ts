@@ -24,6 +24,8 @@ export interface Message {
     };
     room: string;
     timestamp: number;
+    isAiMessage?: boolean;
+    isAiThinking?: boolean;
 }
 
 export interface ChatState {
